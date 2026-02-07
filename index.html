@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚽ El Impostor - Fútbol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .subtitle {
+            color: #888;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .category-box {
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.3);
+        }
+
+        .category-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .category-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .instruction {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .player-card.selected {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        .player-card.correct {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .player-card.wrong {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.2);
+        }
+
+        .player-card.impostor-revealed {
+            border-color: #ff6b6b;
+            background: rgba(233, 69, 96, 0.3);
+        }
+
+        .player-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .player-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .player-team {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .player-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .player-card.correct .player-badge,
+        .player-card.wrong .player-badge,
+        .player-card.impostor-revealed .player-badge {
+            opacity: 1;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .buttons {
+            text-align: center;
+            margin: 30px 0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .result-message {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        .result-message.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-message.success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+        }
+
+        .result-message.fail {
+            background: rgba(233, 69, 96, 0.2);
+            border: 2px solid #e94560;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .mode-btn {
+            padding: 10px 25px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .mode-btn:hover {
+            border-color: #00ff88;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .players-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚽ EL IMPOSTOR</h1>
+            <p class="subtitle">¿Puedes identificar al jugador que NO pertenece?</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">Puntos</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Racha</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="round">1</div>
+                <div class="stat-label">Ronda</div>
+            </div>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="normal">Normal</button>
+            <button class="mode-btn" data-mode="hard">Difícil</button>
+            <button class="mode-btn" data-mode="expert">Experto</button>
+        </div>
+
+        <div class="category-box">
+            <div class="category-label">Encuentra al impostor entre los...</div>
+            <div class="category-name" id="category">Cargando...</div>
+        </div>
+
+        <p class="instruction">👆 Haz clic en el jugador que <strong>NO</strong> pertenece a esta categoría</p>
+
+        <div class="players-grid" id="players-grid">
+            <!-- Players will be inserted here -->
+        </div>
+
+        <div class="result-message" id="result-message"></div>
+
+        <div class="buttons">
+            <button class="btn btn-primary" id="next-btn" style="display: none;">Siguiente Ronda →</button>
+            <button class="btn btn-secondary" id="restart-btn" style="display: none;">Reiniciar Juego</button>
+        </div>
+
+        <footer>
+            Creado con ⚽ por Paz | 2026
+        </footer>
+    </div>
+
+    <script>
+        // Game data - Categories and players
+        const gameData = {
+            normal: [
+                {
+                    category: "Ganadores del Balón de Oro",
+                    correct: [
+                        { name: "Lionel Messi", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Cristiano Ronaldo", team: "Portugal", emoji: "🇵🇹" },
+                        { name: "Luka Modrić", team: "Croacia", emoji: "🇭🇷" },
+                        { name: "Karim Benzema", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Ronaldinho", team: "Brasil", emoji: "🇧🇷" }
+                    ],
+                    impostors: [
+                        { name: "Neymar Jr", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Kylian Mbappé", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Erling Haaland", team: "Noruega", emoji: "🇳🇴" }
+                    ]
+                },
+                {
+                    category: "Jugadores del Real Madrid 2024",
+                    correct: [
+                        { name: "Vinícius Jr", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Jude Bellingham", team: "Inglaterra", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+                        { name: "Kylian Mbappé", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Rodrygo", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Federico Valverde", team: "Uruguay", emoji: "🇺🇾" }
+                    ],
+                    impostors: [
+                        { name: "Lamine Yamal", team: "España", emoji: "🇪🇸" },
+                        { name: "Robert Lewandowski", team: "Polonia", emoji: "🇵🇱" },
+                        { name: "Pedri", team: "España", emoji: "🇪🇸" }
+                    ]
+                },
+                {
+                    category: "Campeones del Mundo 2022",
+                    correct: [
+                        { name: "Lionel Messi", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Ángel Di María", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Julián Álvarez", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Emiliano Martínez", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Enzo Fernández", team: "Argentina", emoji: "🇦🇷" }
+                    ],
+                    impostors: [
+                        { name: "Sergio Agüero", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Paulo Dybala", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Mauro Icardi", team: "Argentina", emoji: "🇦🇷" }
+                    ]
+                },
+                {
+                    category: "Jugadores del FC Barcelona 2024",
+                    correct: [
+                        { name: "Robert Lewandowski", team: "Polonia", emoji: "🇵🇱" },
+                        { name: "Lamine Yamal", team: "España", emoji: "🇪🇸" },
+                        { name: "Pedri", team: "España", emoji: "🇪🇸" },
+                        { name: "Gavi", team: "España", emoji: "🇪🇸" },
+                        { name: "Raphinha", team: "Brasil", emoji: "🇧🇷" }
+                    ],
+                    impostors: [
+                        { name: "Antoine Griezmann", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Vinícius Jr", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Marco Asensio", team: "España", emoji: "🇪🇸" }
+                    ]
+                },
+                {
+                    category: "Leyendas del Manchester United",
+                    correct: [
+                        { name: "Cristiano Ronaldo", team: "Portugal", emoji: "🇵🇹" },
+                        { name: "Wayne Rooney", team: "Inglaterra", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+                        { name: "David Beckham", team: "Inglaterra", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+                        { name: "Eric Cantona", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Ryan Giggs", team: "Gales", emoji: "🏴󠁧󠁢󠁷󠁬󠁳󠁿" }
+                    ],
+                    impostors: [
+                        { name: "Steven Gerrard", team: "Inglaterra", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+                        { name: "Frank Lampard", team: "Inglaterra", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+                        { name: "Thierry Henry", team: "Francia", emoji: "🇫🇷" }
+                    ]
+                },
+                {
+                    category: "Delanteros Brasileños Históricos",
+                    correct: [
+                        { name: "Ronaldo Nazário", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Romário", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Ronaldinho", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Neymar Jr", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Rivaldo", team: "Brasil", emoji: "🇧🇷" }
+                    ],
+                    impostors: [
+                        { name: "Kaká", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Roberto Carlos", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Cafu", team: "Brasil", emoji: "🇧🇷" }
+                    ]
+                }
+            ],
+            hard: [
+                {
+                    category: "Goleadores de LaLiga 2023-24",
+                    correct: [
+                        { name: "Artem Dovbyk", team: "Ucrania", emoji: "🇺🇦" },
+                        { name: "Alexander Sørloth", team: "Noruega", emoji: "🇳🇴" },
+                        { name: "Jude Bellingham", team: "Inglaterra", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+                        { name: "Antoine Griezmann", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Vinícius Jr", team: "Brasil", emoji: "🇧🇷" }
+                    ],
+                    impostors: [
+                        { name: "Erling Haaland", team: "Noruega", emoji: "🇳🇴" },
+                        { name: "Mohamed Salah", team: "Egipto", emoji: "🇪🇬" },
+                        { name: "Harry Kane", team: "Inglaterra", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" }
+                    ]
+                },
+                {
+                    category: "Jugadores formados en La Masía",
+                    correct: [
+                        { name: "Lionel Messi", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Xavi Hernández", team: "España", emoji: "🇪🇸" },
+                        { name: "Andrés Iniesta", team: "España", emoji: "🇪🇸" },
+                        { name: "Carles Puyol", team: "España", emoji: "🇪🇸" },
+                        { name: "Gerard Piqué", team: "España", emoji: "🇪🇸" }
+                    ],
+                    impostors: [
+                        { name: "David Villa", team: "España", emoji: "🇪🇸" },
+                        { name: "Thierry Henry", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Zlatan Ibrahimović", team: "Suecia", emoji: "🇸🇪" }
+                    ]
+                },
+                {
+                    category: "Jugadores del AC Milan Campeón 2007",
+                    correct: [
+                        { name: "Kaká", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Paolo Maldini", team: "Italia", emoji: "🇮🇹" },
+                        { name: "Andrea Pirlo", team: "Italia", emoji: "🇮🇹" },
+                        { name: "Clarence Seedorf", team: "Países Bajos", emoji: "🇳🇱" },
+                        { name: "Gennaro Gattuso", team: "Italia", emoji: "🇮🇹" }
+                    ],
+                    impostors: [
+                        { name: "Francesco Totti", team: "Italia", emoji: "🇮🇹" },
+                        { name: "Alessandro Del Piero", team: "Italia", emoji: "🇮🇹" },
+                        { name: "Fabio Cannavaro", team: "Italia", emoji: "🇮🇹" }
+                    ]
+                },
+                {
+                    category: "Jugadores que han ganado Champions + Mundial",
+                    correct: [
+                        { name: "Zinedine Zidane", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Kaká", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Lionel Messi", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Ronaldinho", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Cafu", team: "Brasil", emoji: "🇧🇷" }
+                    ],
+                    impostors: [
+                        { name: "Cristiano Ronaldo", team: "Portugal", emoji: "🇵🇹" },
+                        { name: "Zlatan Ibrahimović", team: "Suecia", emoji: "🇸🇪" },
+                        { name: "Luka Modrić", team: "Croacia", emoji: "🇭🇷" }
+                    ]
+                }
+            ],
+            expert: [
+                {
+                    category: "Ganadores del Puskás Award",
+                    correct: [
+                        { name: "Cristiano Ronaldo", team: "Portugal", emoji: "🇵🇹" },
+                        { name: "Neymar Jr", team: "Brasil", emoji: "🇧🇷" },
+                        { name: "Zlatan Ibrahimović", team: "Suecia", emoji: "🇸🇪" },
+                        { name: "Son Heung-min", team: "Corea del Sur", emoji: "🇰🇷" },
+                        { name: "Olivier Giroud", team: "Francia", emoji: "🇫🇷" }
+                    ],
+                    impostors: [
+                        { name: "Lionel Messi", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Karim Benzema", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Robert Lewandowski", team: "Polonia", emoji: "🇵🇱" }
+                    ]
+                },
+                {
+                    category: "Jugadores con 100+ goles en Champions League",
+                    correct: [
+                        { name: "Cristiano Ronaldo", team: "Portugal", emoji: "🇵🇹" },
+                        { name: "Lionel Messi", team: "Argentina", emoji: "🇦🇷" },
+                        { name: "Robert Lewandowski", team: "Polonia", emoji: "🇵🇱" },
+                        { name: "Karim Benzema", team: "Francia", emoji: "🇫🇷" }
+                    ],
+                    impostors: [
+                        { name: "Raúl González", team: "España", emoji: "🇪🇸" },
+                        { name: "Thierry Henry", team: "Francia", emoji: "🇫🇷" },
+                        { name: "Zlatan Ibrahimović", team: "Suecia", emoji: "🇸🇪" },
+                        { name: "Didier Drogba", team: "Costa de Marfil", emoji: "🇨🇮" }
+                    ]
+                },
+                {
+                    category: "Capitanes de selecciones campeonas del mundo",
+                    correct: [
+                        { name: "Lionel Messi", team: "Argentina 2022", emoji: "🇦🇷" },
+                        { name: "Hugo Lloris", team: "Francia 2018", emoji: "🇫🇷" },
+                        { name: "Philipp Lahm", team: "Alemania 2014", emoji: "🇩🇪" },
+                        { name: "Iker Casillas", team: "España 2010", emoji: "🇪🇸" },
+                        { name: "Fabio Cannavaro", team: "Italia 2006", emoji: "🇮🇹" }
+                    ],
+                    impostors: [
+                        { name: "Cristiano Ronaldo", team: "Portugal", emoji: "🇵🇹" },
+                        { name: "Luka Modrić", team: "Croacia", emoji: "🇭🇷" },
+                        { name: "Virgil van Dijk", team: "Países Bajos", emoji: "🇳🇱" }
+                    ]
+                }
+            ]
+        };
+
+        // Game state
+        let currentMode = 'normal';
+        let currentRound = 0;
+        let score = 0;
+        let streak = 0;
+        let currentQuestion = null;
+        let answered = false;
+        let usedQuestions = { normal: [], hard: [], expert: [] };
+
+        // DOM elements
+        const playersGrid = document.getElementById('players-grid');
+        const categoryEl = document.getElementById('category');
+        const resultMessage = document.getElementById('result-message');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const scoreEl = document.getElementById('score');
+        const streakEl = document.getElementById('streak');
+        const roundEl = document.getElementById('round');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+
+        // Initialize game
+        function init() {
+            setupModeButtons();
+            loadQuestion();
+        }
+
+        function setupModeButtons() {
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (answered) return;
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                    resetGame();
+                });
+            });
+        }
+
+        function resetGame() {
+            currentRound = 0;
+            score = 0;
+            streak = 0;
+            usedQuestions = { normal: [], hard: [], expert: [] };
+            updateStats();
+            loadQuestion();
+        }
+
+        function getRandomQuestion() {
+            const questions = gameData[currentMode];
+            const available = questions.filter((_, i) => !usedQuestions[currentMode].includes(i));
+            
+            if (available.length === 0) {
+                usedQuestions[currentMode] = [];
+                return questions[Math.floor(Math.random() * questions.length)];
+            }
+            
+            const randomIndex = Math.floor(Math.random() * available.length);
+            const originalIndex = questions.indexOf(available[randomIndex]);
+            usedQuestions[currentMode].push(originalIndex);
+            
+            return available[randomIndex];
+        }
+
+        function loadQuestion() {
+            answered = false;
+            currentRound++;
+            currentQuestion = getRandomQuestion();
+            
+            // Update UI
+            categoryEl.textContent = currentQuestion.category;
+            resultMessage.classList.remove('show', 'success', 'fail');
+            nextBtn.style.display = 'none';
+            restartBtn.style.display = 'none';
+            roundEl.textContent = currentRound;
+            
+            // Prepare players array
+            const numCorrect = Math.min(4, currentQuestion.correct.length);
+            const shuffledCorrect = shuffleArray([...currentQuestion.correct]).slice(0, numCorrect);
+            const impostor = currentQuestion.impostors[Math.floor(Math.random() * currentQuestion.impostors.length)];
+            
+            const allPlayers = shuffleArray([...shuffledCorrect, { ...impostor, isImpostor: true }]);
+            
+            // Render players
+            playersGrid.innerHTML = '';
+            allPlayers.forEach((player, index) => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                card.innerHTML = `
+                    <div class="player-emoji">${player.emoji}</div>
+                    <div class="player-name">${player.name}</div>
+                    <div class="player-team">${player.team}</div>
+                    <div class="player-badge"></div>
+                `;
+                card.addEventListener('click', () => handleGuess(card, player));
+                playersGrid.appendChild(card);
+            });
+        }
+
+        function handleGuess(card, player) {
+            if (answered) return;
+            answered = true;
+            
+            const cards = document.querySelectorAll('.player-card');
+            
+            if (player.isImpostor) {
+                // Correct guess
+                card.classList.add('correct');
+                card.querySelector('.player-badge').textContent = '✅';
+                score += 10 + (streak * 2);
+                streak++;
+                
+                resultMessage.textContent = `🎉 ¡Correcto! ${player.name} era el impostor`;
+                resultMessage.classList.add('show', 'success');
+            } else {
+                // Wrong guess
+                card.classList.add('wrong');
+                card.querySelector('.player-badge').textContent = '❌';
+                streak = 0;
+                
+                // Reveal the impostor
+                cards.forEach(c => {
+                    const name = c.querySelector('.player-name').textContent;
+                    const impostorData = document.querySelectorAll('.player-card');
+                    // Find and reveal impostor
+                });
+                
+                // Find and reveal the actual impostor
+                const allPlayers = playersGrid.querySelectorAll('.player-card');
+                allPlayers.forEach(c => {
+                    const playerName = c.querySelector('.player-name').textContent;
+                    if (currentQuestion.impostors.some(imp => imp.name === playerName)) {
+                        c.classList.add('impostor-revealed');
+                        c.querySelector('.player-badge').textContent = '🎭';
+                    }
+                });
+                
+                resultMessage.textContent = `❌ ¡Incorrecto! El impostor era otro jugador`;
+                resultMessage.classList.add('show', 'fail');
+            }
+            
+            updateStats();
+            nextBtn.style.display = 'inline-block';
+            restartBtn.style.display = 'inline-block';
+        }
+
+        function updateStats() {
+            scoreEl.textContent = score;
+            streakEl.textContent = streak;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Event listeners
+        nextBtn.addEventListener('click', loadQuestion);
+        restartBtn.addEventListener('click', resetGame);
+
+        // Start game
+        init();
+    </script>
+</body>
+</html>
